@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리센느 얼굴 맞추기 게임</title>
+
+  <style>
+    :root {
+      --bg: #111;
+      --text: #fff;
+      --subText: #bbb;
+      --topText: #ccc;
+      --photoBg: #222;
+      --photoBorder: #333;
+      --timerBg: #333;
+      --buttonBg: #fff;
+      --buttonText: #111;
+      --mainColor: #00e676;
+      --wrongColor: #ff5252;
+    }
+
+    body.light {
+      --bg: #f4f4f4;
+      --text: #111;
+      --subText: #666;
+      --topText: #555;
+      --photoBg: #fff;
+      --photoBorder: #ddd;
+      --timerBg: #ddd;
+      --buttonBg: #111;
+      --buttonText: #fff;
+      --mainColor: #00c853;
+      --wrongColor: #e53935;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 0 auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .themeToggle {
+      align-self: flex-end;
+      margin-bottom: 2px;
+    }
+
+    #themeBtn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      padding: 0;
+      font-size: 18px;
+      background: var(--buttonBg);
+      color: var(--buttonText);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .startScreen,
+    .endScreen {
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .startScreen h1,
+    .endScreen h1 {
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .coverBox,
+    .endRandomBox {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--photoBg);
+      border: 2px solid var(--photoBorder);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .coverBox img,
+    .endRandomBox img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .endRandomBox {
+      max-width: 260px;
+      align-self: center;
+    }
+
+    .small {
+      color: var(--subText);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      color: var(--topText);
+      margin-top: 0;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .photoBox {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--photoBg);
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid var(--photoBorder);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photoBox img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .timerOuter {
+      width: 100%;
+      height: 14px;
+      background: var(--timerBg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .timerInner {
+      width: 100%;
+      height: 100%;
+      background: var(--mainColor);
+      transform-origin: left center;
+    }
+
+    .result {
+      text-align: center;
+      min-height: 30px;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 4px;
+      font-size: 14px;
+      font-weight: 900;
+      background: var(--buttonBg);
+      color: var(--buttonText);
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.correct {
+      background: var(--mainColor);
+      color: #111;
+    }
+
+    button.wrong {
+      background: var(--wrongColor);
+      color: #fff;
+    }
+
+    .mainBtn {
+      background: var(--mainColor);
+      color: #111;
+      font-size: 20px;
+    }
+
+    .shareBtn {
+      background: var(--buttonBg);
+      color: var(--buttonText);
+      font-size: 17px;
+    }
+
+    .scoreBig {
+      font-size: 42px;
+      font-weight: 900;
+    }
+
+    .bestScoreText {
+      color: var(--subText);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .shareStatus {
+      min-height: 20px;
+      color: var(--mainColor);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .footerNotice {
+      width: 100%;
+      margin-top: auto;
+      padding: 24px 8px 16px;
+      text-align: center;
+      color: var(--subText);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .footerNotice a {
+      color: var(--mainColor);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .footerNotice a:hover {
+      text-decoration: underline;
+    }
+
+    .versionText {
+      margin-top: 10px;
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .finalAnswer {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--mainColor);
+      margin-top: -6px;
+    }
+
+    .modeSwitch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.modeBtn {
+  background: transparent;
+  color: var(--mainColor);
+  border: 2px solid var(--mainColor);
+  font-size: 15px;
+  font-weight: 900;
+  padding: 14px 10px;
+}
+
+.modeBtn:hover {
+  background: var(--mainColor);
+  color: #111;
+}
+
+    @media (min-width: 768px) {
+      .app {
+        max-width: 520px;
+        padding: 32px 24px;
+      }
+
+      .footerNotice {
+        font-size: 13px;
+        padding-bottom: 24px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .app {
+        max-width: 520px;
+        min-height: 100vh;
+      }
+
+      .startScreen,
+      .endScreen {
+        min-height: 620px;
+      }
+
+      .footerNotice {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <div class="themeToggle">
+      <button id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+
+    <div id="startScreen" class="startScreen">
+      <h1>리센느 얼굴 맞추기 게임</h1>
+
+      <div class="coverBox">
+        <img src="cover.jpg" alt="대문 이미지" />
+      </div>
+
+      <p class="small">
+        사진을 보고 5초 안에 멤버를 맞추세요.<br>
+        틀리거나 시간이 초과되면 즉시 종료됩니다.<br>
+        15점 이후부터 제한시간이 줄어듭니다.
+      </p>
+
+      <p class="bestScoreText">
+        최고 점수: <span id="startBestScore">0</span>점
+      </p>
+
+      <button class="mainBtn" onclick="startGame()">게임 시작</button>
+    </div>
+
+    <div id="gameScreen" class="hidden">
+      <div class="top">
+        <div>
+          점수 <span id="score">0</span><br>
+          최고 <span id="bestScore">0</span>
+        </div>
+        <div>제한시간 <span id="timeText">5.0</span>초</div>
+      </div>
+
+      <div class="title">누구일까요?</div>
+
+      <div class="photoBox">
+        <img id="faceImage" src="" alt="얼굴 사진" />
+      </div>
+
+      <div class="timerOuter">
+        <div id="timerBar" class="timerInner"></div>
+      </div>
+
+      <div id="result" class="result"></div>
+
+      <div class="choices">
+        <button onclick="selectAnswer('원이', this)">원이</button>
+        <button onclick="selectAnswer('리브', this)">리브</button>
+        <button onclick="selectAnswer('미나미', this)">미나미</button>
+        <button onclick="selectAnswer('메이', this)">메이</button>
+        <button onclick="selectAnswer('제나', this)">제나</button>
+      </div>
+    </div>
+
+    <div id="endScreen" class="endScreen hidden">
+      <h1>게임 종료</h1>
+
+      <div class="endRandomBox">
+        <img id="endRandomImage" src="" alt="마지막 문제 이미지" />
+      </div>
+
+      <div class="scoreBig"><span id="finalScore">0</span>점</div>
+
+      <p class="bestScoreText">
+        최고 점수: <span id="finalBestScore">0</span>점
+      </p>
+
+      <p id="finalAnswer" class="finalAnswer"></p>
+
+      <p id="finalMessage" class="small"></p>
+
+      <button class="mainBtn" onclick="startGame()">다시 하기</button>
+      <button class="shareBtn" onclick="shareScore()">점수 공유</button>
+
+      <p id="shareStatus" class="shareStatus"></p>
+    </div>
+
+    <div class="modeSwitch">
+  <button
+    class="modeBtn"
+    onclick="location.href='https://rescenehertz.github.io/rescene-face-game/'"
+  >
+    일반 모드(현재)
+  </button>
+
+  <button
+    class="modeBtn"
+    onclick="location.href='https://rescenehertz.github.io/rescene-face-game-rank/'"
+  >
+    경쟁전
+  </button>
+</div>
+
+    <footer class="footerNotice">
+      <p>본 게임은 수익을 창출하지 않습니다.</p>
+      <p>
+        문의사항, 오류, 추가적인 아이디어 등이 있을 경우
+        <a
+          href="https://www.youtube.com/@%EB%A6%AC%EC%84%BC%EB%8A%90%ED%97%A4%EB%A5%B4%EC%B8%A0"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          리센느헤르츠 유튜브
+        </a>
+        댓글로 부탁드립니다.
+      </p>
+
+      <p class="versionText">
+        Version 1.1
+      </p>
+    </footer>
+
+  </div>
+
+  <script>
+    const members = [
+      {
+        name: "원이",
+        photos: [
+          "woni1.jpg",
+          "woni2.jpg",
+          "woni3.jpg",
+          "woni4.jpg",
+          "woni5.jpg",
+          "woni6.jpg",
+          "woni7.jpg",
+          "woni8.jpg",
+          "woni9.jpg",
+          "woni10.jpg",
+          "woni11.jpg",
+          "woni12.jpg",
+          "woni13.jpg",
+          "woni14.jpg",
+          "woni15.jpg",
+          "woni16.jpg",
+          "woni17.jpg",
+          "woni18.jpg",
+          "woni19.jpg"
+        ]
+      },
+      {
+        name: "리브",
+        photos: [
+          "liv.jpg",
+          "liv2.jpg",
+          "liv3.jpg",
+          "liv4.jpg",
+          "liv5.jpg",
+          "liv6.jpg",
+          "liv7.jpg",
+          "liv8.jpg",
+          "liv9.jpg",
+          "liv10.jpg",
+          "liv11.jpg",
+          "liv12.jpg",
+          "liv13.jpg",
+          "liv14.jpg",
+          "liv15.jpg",
+          "liv16.jpg",
+          "liv17.jpg",
+          "liv18.jpg",
+          "liv19.jpg",
+          "liv20.jpg",
+          "liv21.jpg",
+          "liv22.jpg",
+          "liv23.jpg",
+          "liv24.jpg",
+          "liv25.jpg"
+        ]
+      },
+      {
+        name: "미나미",
+        photos: [
+          "minami1.jpg",
+          "minami2.jpg",
+          "minami3.jpg",
+          "minami4.jpg",
+          "minami5.jpg",
+          "minami6.jpg",
+          "minami7.jpg",
+          "minami8.jpg",
+          "minami9.jpg",
+          "minami10.jpg",
+          "minami11.jpg",
+          "minami12.jpg",
+          "minami13.jpg",
+          "minami14.jpg",
+          "minami15.jpg",
+          "minami16.jpg",
+          "minami17.jpg",
+          "minami18.jpg",
+          "minami19.jpg",
+          "minami20.jpg",
+          "minami21.jpg"
+        ]
+      },
+      {
+        name: "메이",
+        photos: [
+          "may1.jpg",
+          "may2.jpg",
+          "may3.jpg",
+          "may4.jpg",
+          "may5.jpg",
+          "may6.jpg",
+          "may7.jpg",
+          "may8.jpg",
+          "may9.jpg",
+          "may10.jpg",
+          "may11.jpg",
+          "may12.jpg",
+          "may13.jpg",
+          "may14.jpg",
+          "may15.jpg",
+          "may16.jpg",
+          "may17.jpg",
+          "may18.jpg",
+          "may20.jpg",
+          "may21.jpg",
+          "may22.jpg",
+          "may23.jpg",
+          "may24.jpg",
+          "may25.jpg"
+        ]
+      },
+      {
+        name: "제나",
+        photos: [
+          "zena1.jpg",
+          "zena2.jpg",
+          "zena3.jpg",
+          "zena4.jpg",
+          "zena5.jpg",
+          "zena6.jpg",
+          "zena7.jpg",
+          "zena8.jpg",
+          "zena9.jpg",
+          "zena10.jpg",
+          "zena11.jpg",
+          "zena12.jpg",
+          "zena13.jpg",
+          "zena14.jpg",
+          "zena15.jpg",
+          "zena16.jpg",
+          "zena17.jpg",
+          "zena18.jpg",
+          "zena19.jpg",
+          "zena20.jpg",
+          "zena21.jpg",
+          "zena22.jpg"
+        ]
+      }
+    ];
+
+    const START_TIME = 5.0;
+    const MIN_TIME = 1.2;
+    const TIME_DECREASE_START_SCORE = 15;
+    const TIME_REACH_MIN_SCORE = 50;
+    const PRELOAD_COUNT = 8;
+
+    let photoPool = [];
+    let currentQuestion = null;
+    let score = 0;
+    let bestScore = Number(localStorage.getItem("resceneBestScore")) || 0;
+    let answerLocked = false;
+    let timerId = null;
+    let animationFrameId = null;
+    let countdownTimerId = null;
+    let preloadedImages = {};
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endScreen = document.getElementById("endScreen");
+
+    const scoreEl = document.getElementById("score");
+    const bestScoreEl = document.getElementById("bestScore");
+    const startBestScoreEl = document.getElementById("startBestScore");
+    const finalBestScoreEl = document.getElementById("finalBestScore");
+    const timeTextEl = document.getElementById("timeText");
+    const faceImageEl = document.getElementById("faceImage");
+    const timerBarEl = document.getElementById("timerBar");
+    const resultEl = document.getElementById("result");
+    const finalScoreEl = document.getElementById("finalScore");
+    const finalMessageEl = document.getElementById("finalMessage");
+    const finalAnswerEl = document.getElementById("finalAnswer");
+    const themeBtn = document.getElementById("themeBtn");
+    const endRandomImageEl = document.getElementById("endRandomImage");
+    const shareStatusEl = document.getElementById("shareStatus");
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+
+      const isLight = document.body.classList.contains("light");
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+      themeBtn.textContent = isLight ? "☀️" : "🌙";
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem("theme");
+
+      if (savedTheme === "light") {
+        document.body.classList.add("light");
+        themeBtn.textContent = "☀️";
+      } else {
+        document.body.classList.remove("light");
+        themeBtn.textContent = "🌙";
+      }
+    }
+
+    function updateBestScoreDisplay() {
+      startBestScoreEl.textContent = bestScore;
+      bestScoreEl.textContent = bestScore;
+      finalBestScoreEl.textContent = bestScore;
+    }
+
+    function startGame() {
+      score = 0;
+      answerLocked = false;
+      photoPool = createPhotoPool();
+      preloadedImages = {};
+      shareStatusEl.textContent = "";
+
+      startScreen.classList.add("hidden");
+      endScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      updateBestScoreDisplay();
+      showStartCountdown();
+    }
+
+    function showStartCountdown() {
+      clearTimers();
+      resetButtons();
+
+      let count = 2;
+
+      scoreEl.textContent = score;
+      bestScoreEl.textContent = bestScore;
+      timeTextEl.textContent = getCurrentTimeLimit().toFixed(1);
+      timerBarEl.style.transform = "scaleX(1)";
+      faceImageEl.src = "cover.jpg";
+      resultEl.textContent = `${count}초 뒤 시작합니다`;
+
+      preloadNextImages(PRELOAD_COUNT);
+
+      countdownTimerId = setInterval(() => {
+        count--;
+
+        if (count > 0) {
+          resultEl.textContent = `${count}초 뒤 시작합니다`;
+        } else {
+          clearInterval(countdownTimerId);
+          resultEl.textContent = "시작!";
+          setTimeout(loadNextQuestion, 300);
+        }
+      }, 1000);
+    }
+
+    function createPhotoPool() {
+      const pool = [];
+
+      members.forEach(member => {
+        member.photos.forEach(photo => {
+          pool.push({
+            answer: member.name,
+            image: photo
+          });
+        });
+      });
+
+      return shuffleArray(pool);
+    }
+
+    function preloadImage(src) {
+      if (preloadedImages[src]) return;
+
+      const img = new Image();
+      img.src = src;
+      preloadedImages[src] = img;
+    }
+
+    function preloadNextImages(count) {
+      for (let i = 0; i < count; i++) {
+        const item = photoPool[photoPool.length - 1 - i];
+
+        if (item) {
+          preloadImage(item.image);
+        }
+      }
+    }
+
+    function loadNextQuestion() {
+      clearTimers();
+      resetButtons();
+
+      answerLocked = false;
+      resultEl.textContent = "";
+      scoreEl.textContent = score;
+      bestScoreEl.textContent = bestScore;
+
+      if (photoPool.length === 0) {
+        photoPool = createPhotoPool();
+        preloadedImages = {};
+      }
+
+      preloadNextImages(PRELOAD_COUNT);
+
+      currentQuestion = photoPool.pop();
+
+      const timeLimit = getCurrentTimeLimit();
+      timeTextEl.textContent = timeLimit.toFixed(1);
+      timerBarEl.style.transform = "scaleX(1)";
+
+      const cachedImage = preloadedImages[currentQuestion.image];
+
+      if (cachedImage && cachedImage.complete) {
+        faceImageEl.src = currentQuestion.image;
+        preloadNextImages(PRELOAD_COUNT);
+        startTimer(timeLimit);
+        return;
+      }
+
+      const img = new Image();
+
+      img.onload = function () {
+        faceImageEl.src = currentQuestion.image;
+        preloadedImages[currentQuestion.image] = img;
+        preloadNextImages(PRELOAD_COUNT);
+        startTimer(timeLimit);
+      };
+
+      img.onerror = function () {
+        resultEl.textContent = "이미지를 불러오지 못했습니다.";
+        setTimeout(loadNextQuestion, 800);
+      };
+
+      img.src = currentQuestion.image;
+      preloadedImages[currentQuestion.image] = img;
+    }
+
+    function getCurrentTimeLimit() {
+      if (score < TIME_DECREASE_START_SCORE) {
+        return START_TIME;
+      }
+
+      if (score >= TIME_REACH_MIN_SCORE) {
+        return MIN_TIME;
+      }
+
+      const progress =
+        (score - TIME_DECREASE_START_SCORE) /
+        (TIME_REACH_MIN_SCORE - TIME_DECREASE_START_SCORE);
+
+      return START_TIME - progress * (START_TIME - MIN_TIME);
+    }
+
+    function startTimer(seconds) {
+      const duration = seconds * 1000;
+      const startTime = performance.now();
+
+      timerBarEl.style.transform = "scaleX(1)";
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const ratio = Math.max(0, 1 - elapsed / duration);
+
+        timerBarEl.style.transform = `scaleX(${ratio})`;
+
+        if (ratio > 0 && !answerLocked) {
+          animationFrameId = requestAnimationFrame(animate);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+
+      timerId = setTimeout(() => {
+        if (answerLocked) return;
+
+        answerLocked = true;
+        resultEl.textContent = `시간 초과! 정답은 ${currentQuestion.answer}`;
+        showCorrectButton();
+
+        setTimeout(endGame, 900);
+      }, duration);
+    }
+
+    function selectAnswer(selectedName, button) {
+      if (answerLocked) return;
+
+      answerLocked = true;
+      clearTimers();
+
+      if (selectedName === currentQuestion.answer) {
+        score++;
+        scoreEl.textContent = score;
+        button.classList.add("correct");
+        resultEl.textContent = "정답!";
+
+        setTimeout(loadNextQuestion, 250);
+      } else {
+        button.classList.add("wrong");
+        resultEl.textContent = `오답! 정답은 ${currentQuestion.answer}`;
+        showCorrectButton();
+
+        setTimeout(endGame, 900);
+      }
+    }
+
+    function endGame() {
+      clearTimers();
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("resceneBestScore", bestScore);
+      }
+
+      gameScreen.classList.add("hidden");
+      endScreen.classList.remove("hidden");
+
+      finalScoreEl.textContent = score;
+      finalBestScoreEl.textContent = bestScore;
+      startBestScoreEl.textContent = bestScore;
+      bestScoreEl.textContent = bestScore;
+
+      finalAnswerEl.textContent = `정답: ${currentQuestion.answer}`;
+      finalMessageEl.textContent = getFinalMessage(score);
+      endRandomImageEl.src = currentQuestion.image;
+      shareStatusEl.textContent = "";
+    }
+
+    function getFinalMessage(score) {
+      return "다시 도전해보세요.";
+    }
+
+    async function shareScore() {
+      const gameUrl = window.location.href;
+      const shareText =
+        `리센느 얼굴 맞추기 게임 ${score}점 달성!\n` +
+        `최고 점수: ${bestScore}점\n` +
+        `너도 도전해보세요.\n` +
+        `${gameUrl}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "리센느 얼굴 맞추기 게임",
+            text: shareText,
+            url: gameUrl
+          });
+
+          shareStatusEl.textContent = "공유창을 열었습니다.";
+          return;
+        } catch (error) {
+          if (error.name === "AbortError") {
+            shareStatusEl.textContent = "공유가 취소되었습니다.";
+            return;
+          }
+        }
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareText);
+        shareStatusEl.textContent = "점수 공유 문구가 복사되었습니다.";
+      } catch (error) {
+        shareStatusEl.textContent = "복사에 실패했습니다. 주소를 직접 복사해주세요.";
+      }
+    }
+
+    function showCorrectButton() {
+      const buttons = document.querySelectorAll(".choices button");
+
+      buttons.forEach(button => {
+        const name = button.textContent;
+
+        if (name === currentQuestion.answer) {
+          button.classList.add("correct");
+        }
+      });
+    }
+
+    function resetButtons() {
+      const buttons = document.querySelectorAll(".choices button");
+
+      buttons.forEach(button => {
+        button.classList.remove("correct");
+        button.classList.remove("wrong");
+      });
+    }
+
+    function clearTimers() {
+      clearTimeout(timerId);
+      cancelAnimationFrame(animationFrameId);
+      clearInterval(countdownTimerId);
+    }
+
+    function shuffleArray(array) {
+      const copied = [...array];
+
+      for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copied[i], copied[j]] = [copied[j], copied[i]];
+      }
+
+      return copied;
+    }
+
+    loadTheme();
+    updateBestScoreDisplay();
+  </script>
+</body>
+</html>
