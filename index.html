@@ -280,18 +280,20 @@
 
     .modeSwitch {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
   margin-top: 4px;
 }
 
 .modeBtn {
+  min-width: 0;
   background: transparent;
   color: var(--mainColor);
   border: 2px solid var(--mainColor);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
-  padding: 14px 10px;
+  padding: 13px 4px;
+  word-break: keep-all;
 }
 
 .modeBtn:hover {
@@ -362,7 +364,7 @@
           점수 <span id="score">0</span><br>
           최고 <span id="bestScore">0</span>
         </div>
-        <div>제한시간 <span id="timeText">5.0</span>초</div>
+        <div>제한시간 없음</div>
       </div>
 
       <div class="title">누구일까요?</div>
@@ -409,12 +411,19 @@
       <p id="shareStatus" class="shareStatus"></p>
     </div>
 
-    <div class="modeSwitch">
+   <div class="modeSwitch">
+  <button
+    class="modeBtn"
+    onclick="location.href='https://rescenehertz.github.io/rescene-face-study/'"
+  >
+    연습하기(현재)
+  </button>
+
   <button
     class="modeBtn"
     onclick="location.href='https://rescenehertz.github.io/rescene-face-game/'"
   >
-    일반 모드(현재)
+    일반 모드
   </button>
 
   <button
