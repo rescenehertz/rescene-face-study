@@ -606,7 +606,8 @@
     let photoPool = [];
     let currentQuestion = null;
     let score = 0;
-    let bestScore = Number(localStorage.getItem("resceneBestScore")) || 0;
+    let bestScore =
+  Number(localStorage.getItem("resceneStudyBestScore")) || 0;
     let answerLocked = false;
     let timerId = null;
     let animationFrameId = null;
@@ -877,7 +878,7 @@
 
       if (score > bestScore) {
         bestScore = score;
-        localStorage.setItem("resceneBestScore", bestScore);
+        localStorage.setItem("resceneStudyBestScore", bestScore);
       }
 
       gameScreen.classList.add("hidden");
