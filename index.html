@@ -445,7 +445,7 @@
       </p>
 
       <p class="versionText">
-        Version 1.0
+        Version 1.0.0
       
       </p>
     </footer>
@@ -968,6 +968,45 @@
 
       return copied;
     }
+
+
+    document.addEventListener("keydown", function (event) {
+  if (gameScreen.classList.contains("hidden")) return;
+  if (answerLocked) return;
+
+  const key = event.key.toLowerCase();
+
+  const keyMap = {
+    "1": "원이",
+    "q": "원이",
+
+    "2": "리브",
+    "w": "리브",
+
+    "3": "미나미",
+    "e": "미나미",
+
+    "4": "메이",
+    "r": "메이",
+
+    "5": "제나",
+    "t": "제나"
+  };
+
+  const selectedName = keyMap[key];
+
+  if (!selectedName) return;
+
+  const buttons = document.querySelectorAll(".choices button");
+
+  const targetButton = Array.from(buttons).find(
+    button => button.textContent.trim() === selectedName
+  );
+
+  if (targetButton) {
+    selectAnswer(selectedName, targetButton);
+  }
+});
 
     loadTheme();
     updateBestScoreDisplay();
