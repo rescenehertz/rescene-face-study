@@ -371,9 +371,7 @@
         <img id="faceImage" src="" alt="얼굴 사진" />
       </div>
 
-      <div class="timerOuter">
-        <div id="timerBar" class="timerInner"></div>
-      </div>
+      
 
       <div id="result" class="result"></div>
 
@@ -620,9 +618,7 @@
     const bestScoreEl = document.getElementById("bestScore");
     const startBestScoreEl = document.getElementById("startBestScore");
     const finalBestScoreEl = document.getElementById("finalBestScore");
-    const timeTextEl = document.getElementById("timeText");
     const faceImageEl = document.getElementById("faceImage");
-    const timerBarEl = document.getElementById("timerBar");
     const resultEl = document.getElementById("result");
     const finalScoreEl = document.getElementById("finalScore");
     const finalMessageEl = document.getElementById("finalMessage");
@@ -680,8 +676,6 @@
 
       scoreEl.textContent = score;
       bestScoreEl.textContent = bestScore;
-      timeTextEl.textContent = getCurrentTimeLimit().toFixed(1);
-      timerBarEl.style.transform = "scaleX(1)";
       faceImageEl.src = "cover.jpg";
       resultEl.textContent = `${count}초 뒤 시작합니다`;
 
@@ -752,33 +746,20 @@
   preloadedImages = {};
 }
 
-      function completeStudyMode() {
-  clearTimers();
-
-  gameScreen.classList.add("hidden");
-  endScreen.classList.remove("hidden");
-
-  finalScoreEl.textContent = score;
-  finalAnswerEl.textContent = "모든 사진을 맞혔습니다.";
-  finalMessageEl.textContent = "공부모드 클리어!";
-  endRandomImageEl.src = "cover.jpg";
-}
+     
 
       preloadNextImages(PRELOAD_COUNT);
 
       currentQuestion = photoPool.pop();
 
-      const timeLimit = getCurrentTimeLimit();
-      timeTextEl.textContent = timeLimit.toFixed(1);
-      timerBarEl.style.transform = "scaleX(1)";
+      
 
       const cachedImage = preloadedImages[currentQuestion.image];
 
       if (cachedImage && cachedImage.complete) {
-        faceImageEl.src = currentQuestion.image;
-        preloadNextImages(PRELOAD_COUNT);
-        if (GAME_MODE !== "study") {
-  startTimer(timeLimit);
+  faceImageEl.src = currentQuestion.image;
+  preloadNextImages(PRELOAD_COUNT);
+  return;
 }
         return;
       }
@@ -786,13 +767,10 @@
       const img = new Image();
 
       img.onload = function () {
-        faceImageEl.src = currentQuestion.image;
-        preloadedImages[currentQuestion.image] = img;
-        preloadNextImages(PRELOAD_COUNT);
-        if (GAME_MODE !== "study") {
-  startTimer(timeLimit);
-}
-      };
+  faceImageEl.src = currentQuestion.image;
+  preloadedImages[currentQuestion.image] = img;
+  preloadNextImages(PRELOAD_COUNT);
+};
 
       img.onerror = function () {
         resultEl.textContent = "이미지를 불러오지 못했습니다.";
@@ -870,6 +848,28 @@
         setTimeout(endGame, 900);
       }
     }
+
+    function completeStudyMode() {
+  clearTimers();
+
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem("resceneStudyBestScore", bestScore);
+  }
+
+  gameScreen.classList.add("hidden");
+  endScreen.classList.remove("hidden");
+
+  finalScoreEl.textContent = score;
+  finalBestScoreEl.textContent = bestScore;
+  startBestScoreEl.textContent = bestScore;
+  bestScoreEl.textContent = bestScore;
+
+  finalAnswerEl.textContent = "모든 사진을 맞혔습니다.";
+  finalMessageEl.textContent = "연습모드 클리어!";
+  endRandomImageEl.src = "cover.jpg";
+  shareStatusEl.textContent = "";
+}
 
     function endGame() {
       clearTimers();
