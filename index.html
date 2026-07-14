@@ -586,6 +586,8 @@
       }
     ];
 
+    const GAME_MODE = "study";
+
     const START_TIME = 5.0;
     const MIN_TIME = 1.2;
     const TIME_DECREASE_START_SCORE = 15;
@@ -733,9 +735,26 @@
       bestScoreEl.textContent = bestScore;
 
       if (photoPool.length === 0) {
-        photoPool = createPhotoPool();
-        preloadedImages = {};
-      }
+  if (GAME_MODE === "study") {
+    completeStudyMode();
+    return;
+  }
+
+  photoPool = createPhotoPool();
+  preloadedImages = {};
+}
+
+      function completeStudyMode() {
+  clearTimers();
+
+  gameScreen.classList.add("hidden");
+  endScreen.classList.remove("hidden");
+
+  finalScoreEl.textContent = score;
+  finalAnswerEl.textContent = "모든 사진을 맞혔습니다.";
+  finalMessageEl.textContent = "공부모드 클리어!";
+  endRandomImageEl.src = "cover.jpg";
+}
 
       preloadNextImages(PRELOAD_COUNT);
 
@@ -750,7 +769,9 @@
       if (cachedImage && cachedImage.complete) {
         faceImageEl.src = currentQuestion.image;
         preloadNextImages(PRELOAD_COUNT);
-        startTimer(timeLimit);
+        if (GAME_MODE !== "study") {
+  startTimer(timeLimit);
+}
         return;
       }
 
@@ -760,7 +781,9 @@
         faceImageEl.src = currentQuestion.image;
         preloadedImages[currentQuestion.image] = img;
         preloadNextImages(PRELOAD_COUNT);
-        startTimer(timeLimit);
+        if (GAME_MODE !== "study") {
+  startTimer(timeLimit);
+}
       };
 
       img.onerror = function () {
